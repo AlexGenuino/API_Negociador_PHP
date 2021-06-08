@@ -13,4 +13,9 @@ class Student extends Model
     protected $fillable = [
         'CPF', 'name', 'login', 'password', 'birth_date'
     ];
+
+    public function course()
+    {
+        return $this->belongsToMany(Course::class, 'student_course');
+    }
 }

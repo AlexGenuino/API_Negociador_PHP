@@ -39,9 +39,20 @@ class StudentController extends Controller
     public function store(StudentRequest $request){
         $data = $request->all();
 
+        if(!$request->has('password') || !$request->get('password'))
+        {
+            $message = new ApiMessages('it is necessary to enter a password for the user');
+            return response()->json($message->getMessage(), 401);
+        }
+
         try{
 
+            $data['password'] = bcrypt($data['password']);
+
             $student = $this->student->create($data);
+            if(isset($data['course']) && count($data['course'])){
+                $student->course()->sync($data['course']);
+            }
             return response()->json($student, 200);
 
         }catch(\Exception $e){
@@ -52,6 +63,11 @@ class StudentController extends Controller
 
     public function update($id, StudentRequest $request){
         $data = $request->all();
+
+        if(!$request->has('password') && !$request->get('password'))
+        {
+            $data['password'] = bcrypt($data['password']);
+        }else {unset($data['password']);}
 
         try{
             $student = $this->student->findOrFail($id);
@@ -74,7 +90,7 @@ class StudentController extends Controller
 
             return response()->json([
                 'data' => [
-                    'msg' => 'Estudante Removido '
+                    'msg' => 'Student removed'
                 ]
             ], 200);
         }catch(\Exception $e){

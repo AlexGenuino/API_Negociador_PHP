@@ -24,10 +24,10 @@ class StudentRequest extends FormRequest
     public function rules()
     {
         return [
-            'CPF' => 'required',
-            'name' => 'required',
-            'login' => 'required',
-            'password' => 'required',
+            'CPF' => ['required', 'string', 'max:11',],
+            'name' => ['required', 'string', 'max:255',],
+            'login' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string', 'min:8'],
             'birth_date' => 'required'
         ];
     }
