@@ -34,6 +34,7 @@ Route::prefix('v1')->namespace('Api')->group(function(){
 
     Route::name('student.')->group(function(){
 
+        Route::get('student/{id}/debt', 'StudentController@debt');
         Route::resource('student', 'StudentController');
 
     });
