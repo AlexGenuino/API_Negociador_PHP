@@ -19,29 +19,33 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/test', function(Request $request){
 
-	//dd($request->headers->all());
-	//dd($request->headers->get('Authorization'));
-
-	$response = new \Illuminate\Http\Response(json_encode(['msg' => 'funfou']));
-	$response->header('Content-Type', 'application/json');
-
-	return $response;
-});
 
 Route::prefix('v1')->namespace('Api')->group(function(){
 
-    Route::name('student.')->group(function(){
+     //ROTA PARA CONFIRMAR O LOGIN DO USUARIO, RETORNA UM TOKEN
+     Route::post('/login', 'Auth\\LoginJwtController@login')->name('login');
+     //ROTA PARA LOGOUT DO USUARIO TOKEN É INVALIDADO NA BLACKLISTED
+     Route::get('/logout', 'Auth\\LoginJwtController@logout')->name('logout');
+     //ROTA PARA RENOVAR O TOKEN DO USUARIO ENVIAR O ANTIGO TOKEN
+     Route::get('/refresh', 'Auth\\LoginJwtController@refresh')->name('refresh');
 
-        Route::get('student/{id}/debt', 'StudentController@debt');
-        Route::resource('student', 'StudentController');
 
-    });
 
-    Route::name('course.')->group(function(){
+     Route::group(['middleware' => ['jwt.auth']], function(){
 
-        Route::resource('course', 'CourseController');
+        Route::name('student.')->group(function(){
+
+            Route::get('student/{id}/debt', 'StudentController@debt');
+            Route::resource('student', 'StudentController');
+
+        });
+
+        Route::name('course.')->group(function(){
+
+            Route::resource('course', 'CourseController');
+
+        });
 
     });
 });

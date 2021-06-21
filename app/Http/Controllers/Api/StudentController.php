@@ -8,7 +8,9 @@ use App\Http\Requests\StudentRequest;
 use App\Models\Course;
 use App\Models\Debt;
 use App\Models\Student;
+use App\Models\User;
 use App\Utils\ValidadorCPF;
+use Illuminate\Http\Request;
 use DateTime;
 use phpDocumentor\Reflection\Types\Float_;
 
@@ -20,13 +22,14 @@ class StudentController extends Controller
     private $student;
     private $debt;
     private $course;
+    private $user;
 
-
-    public function __construct(Student $student, Debt $debt, Course $course)
+    public function __construct(Student $student, Debt $debt, Course $course, User $user)
     {
         $this->student = $student;
         $this->debt = $debt;
         $this->course = $course;
+        $this->user = $user;
     }
 
     public function index () {
@@ -46,7 +49,7 @@ class StudentController extends Controller
         }
     }
 
-    public function store(StudentRequest $request){
+    public function store(Request $request){
         $data = $request->all();
 
         if(!$request->has('password') || !$request->get('password'))
@@ -67,9 +70,21 @@ class StudentController extends Controller
                 ], 200);
             }
 
+            $cpf = $this->student->where($data['CPF']);
+            if(empty($cpf)){
+                return response()->json([
+                    'data' => [
+                        'CPF' => $cpf,
+                        'message' => 'Ja cadastrado'
+                    ]
+                ], 200);
+            }
+
             $data['password'] = bcrypt($data['password']);
 
             $student = $this->student->create($data);
+            $this->user->create($data);
+
 
             $course = $this->course->findOrFail($data['course']);
 
@@ -97,7 +112,16 @@ class StudentController extends Controller
                 $debt->student()->sync($student['id']);
             }
 
-            return response()->json($student, 200);
+            return response()->json([
+                'data' => [
+                    'msg' => 'Aluno Cadastrado',
+                    'nome' => $student['name'],
+                    'cpf' => $student['CPF'],
+                    'curso' => $course['name'],
+                    'Semestre' => $course['semester'],
+                    'id_student' => $student['id'],
+                ]
+            ], 200);
 
         }catch(\Exception $e){
             $message = new ApiMessages($e->getMessage());

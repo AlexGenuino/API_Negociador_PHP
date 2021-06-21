@@ -11,7 +11,7 @@ class Student extends Model
     protected $table = 'student';
 
     protected $fillable = [
-        'CPF', 'name', 'login', 'password', 'birth_date'
+        'CPF', 'name', 'email', 'password', 'birth_date'
     ];
 
     public function course()

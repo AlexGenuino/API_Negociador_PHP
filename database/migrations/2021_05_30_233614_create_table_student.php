@@ -17,7 +17,7 @@ class CreateTableStudent extends Migration
             $table->bigIncrements('id');
             $table->string('CPF');
             $table->string('name');
-            $table->string('login');
+            $table->string('email');
             $table->string('password');
             $table->string('birth_date');
             $table->timestamps();
